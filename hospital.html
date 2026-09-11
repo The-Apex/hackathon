@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dashboard | Blood Bank System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container animate-in">
+        <div class="dashboard-header">
+            <h1>🚑 Hospital Dashboard</h1>
+            <a href="index.html" class="back-link">← Back to Home</a>
+        </div>
+        
+        <div class="dashboard-grid">
+            <!-- REQUEST BLOOD -->
+            <div class="panel delay-1">
+                <h2>Request Blood Supply</h2>
+                <form method="POST" action="request.php">
+                    <input type="hidden" name="requester_type" value="hospital">
+                    <div class="form-group">
+                        <label>Hospital Name</label>
+                        <input type="text" name="requester_name" placeholder="Enter hospital name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Blood Type Needed</label>
+                        <select name="blood_type" required>
+                            <option value="">Select Blood Type</option>
+                            <option value="O+">O+</option>
+                            <option value="A+">A+</option>
+                            <option value="B+">B+</option>
+                            <option value="AB+">AB+</option>
+                            <option value="O-">O-</option>
+                            <option value="A-">A-</option>
+                            <option value="B-">B-</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Units Needed</label>
+                        <input type="number" name="units" placeholder="Number of units" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" name="is_urgent" id="is_urgent" value="1">
+                            <label for="is_urgent">EMERGENCY / URGENT</label>
+                        </div>
+                    </div>
+                    <button type="submit">🚑 Submit Hospital Request</button>
+                </form>
+            </div>
+
+            <!-- HOSPITAL REQUESTS -->
+            <div class="panel delay-2">
+                <h2>Our Requests Status</h2>
+                <div id="hospital-requests" class="requests-list">
+                    <p style="color: var(--text-muted); text-align: center; padding: 20px;">Loading requests...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadHospitalRequests() {
+            fetch('get_requests.php?type=hospital')
+                .then(res => res.json())
+                .then(data => {
+                    let html = '';
+                    data.forEach(req => {
+                        let badgeClass = req.status === 'pending' ? 'badge-warning' : (req.status === 'completed' ? 'badge-info' : 'badge-success');
+                        let urgentClass = req.is_urgent == 1 ? 'urgent' : '';
+                        
+                        html += `
+                            <div class="item ${urgentClass}">
+                                <div class="item-left">
+                                    <span class="item-type">
+                                        🩸 ${req.blood_type} 
+                                        ${req.is_urgent == 1 ? '<span class="badge badge-danger">URGENT</span>' : ''}
+                                    </span>
+                                    <div class="item-details">
+                                        <strong>Hospital:</strong> ${req.requester_name} <br>
+                                        <span class="timestamp">Requested: ${req.created_at}</span>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="item-units">${req.units} units</span><br>
+                                    <div style="margin-top: 8px;">
+                                        <span class="badge ${badgeClass}">${req.status}</span>
+                                    </div>
+                                    ${req.status === 'completed' ? `<button class="action-btn btn-success" onclick="markReceived(${req.id})" style="margin-top: 5px;">Mark Received</button>` : ''}
+                                </div>
+                            </div>`;
+                    });
+                    document.getElementById('hospital-requests').innerHTML = html || '<p style="color: var(--text-muted); text-align: center; padding: 20px;">No requests found</p>';
+                });
+        }
+
+        function markReceived(id) {
+            fetch('update_request_status.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `id=${id}&status=received`
+            })
+            .then(res => res.text())
+            .then(data => {
+                loadHospitalRequests();
+            });
+        }
+
+        loadHospitalRequests();
+        setInterval(loadHospitalRequests, 3000);
+    </script>
+</body>
+</html>

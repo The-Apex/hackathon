@@ -3,30 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood Bank System | Welcome</title>
+    <title>BloodSync — Save Lives</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container animate-in">
-        <h1>🩸 Blood Bank Management System</h1>
-        
-        <div class="portals">
-            <a href="user.html" class="portal-card delay-1">
-                <div class="icon">👤</div>
-                <h2>User Portal</h2>
-                <p>Donate blood or request blood for personal emergencies. Save lives today.</p>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo">🩸</div>
+            BloodSync
+        </a>
+        <div class="navbar-actions">
+            <a href="centers.php" class="nav-btn nav-btn-highlight">📍 Find Centers</a>
+            <a href="login.html" class="nav-btn nav-btn-ghost">Sign In</a>
+            <a href="register.html" class="nav-btn nav-btn-primary">Sign Up</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="page-wrapper">
+        <section class="hero animate-in" style="padding: 0; background: none; margin-bottom: 40px; box-shadow: none;">
+            <div class="hero-banner">
+                <img src="banner.png" alt="BloodSync Donate Blood. Save Lives." style="width: 100%; height: auto; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: block;">
+            </div>
+            <div style="text-align: center; margin-top: 24px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <p style="font-size: 1.1rem; color: var(--text-secondary); line-height: 1.6;">A modern platform connecting blood donors, hospitals, and blood banks. Donate, request, and manage blood inventory — all in one place.</p>
+            </div>
+        </section>
+
+        <!-- PORTAL CARDS -->
+        <div class="portal-grid">
+            <a href="login.html?role=user" class="portal-card delay-1">
+                <div class="portal-icon portal-icon-user">👤</div>
+                <h3>User Portal</h3>
+                <p>Donate blood or request blood for personal emergencies.</p>
+                <div class="portal-arrow">Sign in as User →</div>
             </a>
 
-            <a href="hospital.html" class="portal-card delay-2">
-                <div class="icon">🚑</div>
-                <h2>Hospital Portal</h2>
-                <p>Request blood units for hospital patients and track supply status.</p>
+            <a href="login.html?role=hospital" class="portal-card delay-2">
+                <div class="portal-icon portal-icon-hospital">🚑</div>
+                <h3>Hospital Portal</h3>
+                <p>Request blood units for patients and track supply status.</p>
+                <div class="portal-arrow">Sign in as Hospital →</div>
             </a>
 
-            <a href="bank.html" class="portal-card delay-3">
-                <div class="icon">🏥</div>
-                <h2>Blood Bank Portal</h2>
-                <p>Manage blood inventory and track incoming requests from hospitals and patients.</p>
+            <a href="login.html?role=bank" class="portal-card delay-3">
+                <div class="portal-icon portal-icon-bank">🏥</div>
+                <h3>Blood Bank Portal</h3>
+                <p>Manage inventory, approve requests, and view donor records.</p>
+                <div class="portal-arrow">Sign in as Blood Bank →</div>
             </a>
         </div>
     </div>

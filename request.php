@@ -1,24 +1,43 @@
 <?php
+session_start();
 $db = new mysqli("localhost", "root", "", "blood_bank");
 
-if ($db->connect_error) {
-    die("Connection failed: " . $db->connect_error);
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.html');
+    exit;
 }
 
+$user_id = $_SESSION['user_id'];
 $requester_name = $db->real_escape_string($_POST['requester_name']);
-$requester_type = $db->real_escape_string($_POST['requester_type']); // 'user' or 'hospital'
-$blood_type = $db->real_escape_string($_POST['blood_type']);
+$requester_type = $db->real_escape_string($_POST['requester_type']);
+$phone = $db->real_escape_string($_POST['phone']);
+$blood_type = $_POST['blood_type'];
 $units = (int)$_POST['units'];
-$is_urgent = isset($_POST['is_urgent']) && $_POST['is_urgent'] == '1' ? 1 : 0;
+$is_urgent = isset($_POST['is_urgent']) ? 1 : 0;
+$center_id = (int)$_POST['center_id'];
 
-$db->query("INSERT INTO requests (requester_name, requester_type, blood_type, units, is_urgent) 
-            VALUES ('$requester_name', '$requester_type', '$blood_type', $units, $is_urgent)");
+$stmt = $db->prepare("INSERT INTO requests (user_id, center_id, requester_name, requester_type, phone, blood_type, units, is_urgent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("iisssssi", $user_id, $center_id, $requester_name, $requester_type, $phone, $blood_type, $units, $is_urgent);
+$stmt->execute();
 
-$redirect = $requester_type == 'hospital' ? 'hospital.html' : 'user.html';
-
-echo "<!DOCTYPE html><html><head><link rel='stylesheet' href='style.css'></head><body style='display:flex; justify-content:center; align-items:center; height:100vh; background:#f4f7f6;'>";
-echo "<div class='panel' style='text-align:center;'>";
-echo "<div class='msg-success'>✅ Blood request for $units units of $blood_type submitted successfully!</div>";
-echo "<a href='$redirect'><button>← Back to Dashboard</button></a>";
-echo "</div></body></html>";
+$redirect = $requester_type == 'hospital' ? 'hospital.php' : 'user.php';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Submitted — BloodSync</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="success-page">
+        <div class="success-box animate-in">
+            <div class="success-icon">📋</div>
+            <h2>Request Submitted!</h2>
+            <p>Your request for <strong><?php echo $units; ?> units</strong> of <strong><?php echo htmlspecialchars($blood_type); ?></strong> blood has been submitted. <?php echo $is_urgent ? '<span class="badge badge-urgent">URGENT</span>' : ''; ?></p>
+            <a href="<?php echo htmlspecialchars($redirect); ?>" class="btn btn-primary">← Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

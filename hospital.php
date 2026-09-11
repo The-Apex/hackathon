@@ -1,33 +1,36 @@
+<?php
+require_once 'session_check.php';
+requireLogin(['hospital']);
+$user = getCurrentUser();
+?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hospital Portal — BloodSync</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <!-- NAVBAR -->
     <nav class="navbar">
         <a href="index.html" class="navbar-brand">
             <div class="logo">🩸</div>
             BloodSync
         </a>
         <div class="navbar-actions">
-            <a href="index.html" class="nav-btn nav-btn-ghost">← Home</a>
+            <a href="centers.php" class="nav-btn nav-btn-highlight">📍 Find Centers</a>
+            <span class="nav-btn" style="color: var(--text-muted); cursor: default;">🚑 <?php echo htmlspecialchars($user['name']); ?></span>
+            <a href="logout.php" class="nav-btn nav-btn-ghost">Logout</a>
         </div>
     </nav>
 
     <div class="page-wrapper animate-in">
         <div class="page-header">
             <h1>🚑 Hospital Portal</h1>
-            <p>Submit blood supply requests for your hospital and track their status.</p>
+            <p>Submit blood supply requests for <?php echo htmlspecialchars($user['name']); ?> and track their status.</p>
         </div>
 
         <div class="grid-2">
-            <!-- REQUEST FORM -->
             <div class="card delay-1">
                 <div class="card-header">
                     <h2><span class="card-header-icon">🚑</span> Request Blood Supply</h2>
@@ -37,32 +40,25 @@
                         <input type="hidden" name="requester_type" value="hospital">
                         <div class="form-group">
                             <label class="form-label">Hospital Name</label>
-                            <input type="text" name="requester_name" class="form-input"
-                                placeholder="Enter hospital name" required>
+                            <input type="text" name="requester_name" class="form-input" value="<?php echo htmlspecialchars($user['name']); ?>" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Contact Phone</label>
-                            <input type="text" name="phone" class="form-input" placeholder="e.g. +919876543210"
-                                required>
+                            <input type="text" name="phone" class="form-input" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Blood Type Needed</label>
                             <select name="blood_type" class="form-select" required>
                                 <option value="">Select Blood Type</option>
-                                <option value="O+">O+</option>
-                                <option value="A+">A+</option>
-                                <option value="B+">B+</option>
-                                <option value="AB+">AB+</option>
-                                <option value="O-">O-</option>
-                                <option value="A-">A-</option>
-                                <option value="B-">B-</option>
-                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option><option value="A+">A+</option>
+                                <option value="B+">B+</option><option value="AB+">AB+</option>
+                                <option value="O-">O-</option><option value="A-">A-</option>
+                                <option value="B-">B-</option><option value="AB-">AB-</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Units Needed</label>
-                            <input type="number" name="units" class="form-input" placeholder="Number of units" min="1"
-                                required>
+                            <input type="number" name="units" class="form-input" placeholder="Number of units" min="1" required>
                         </div>
                         <div class="form-group">
                             <label class="urgent-toggle">
@@ -75,15 +71,13 @@
                 </div>
             </div>
 
-            <!-- HOSPITAL REQUESTS STATUS -->
             <div class="card delay-2">
                 <div class="card-header">
                     <h2><span class="card-header-icon">📊</span> Our Request Status</h2>
                 </div>
                 <div class="card-body">
                     <div id="hospital-requests" class="list-container">
-                        <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">Loading requests...
-                        </p>
+                        <p style="color:var(--text-muted);text-align:center;padding:40px 0;">Loading requests...</p>
                     </div>
                 </div>
             </div>
@@ -92,38 +86,37 @@
 
     <script>
         function loadHospitalRequests() {
-            fetch('get_requests.php?type=hospital')
-                .then(res => res.json())
+            fetch('get_requests.php?scope=mine')
+                .then(r => r.json())
                 .then(data => {
                     let html = '';
                     data.forEach(req => {
-                        let badgeClass = req.status === 'pending' ? 'badge-pending' : (req.status === 'completed' ? 'badge-completed' : 'badge-received');
+                        let badgeClass = req.status==='pending'?'badge-pending':(req.status==='completed'?'badge-completed':'badge-received');
                         let urgentClass = req.is_urgent == 1 ? 'urgent-item' : '';
-
                         html += `
                             <div class="list-item ${urgentClass}">
                                 <div class="list-item-left">
                                     <div class="blood-badge blood-badge-default">${req.blood_type}</div>
                                     <div class="list-item-info">
-                                        <h4>${req.requester_name} ${req.is_urgent == 1 ? '<span class="badge badge-urgent">URGENT</span>' : ''}</h4>
+                                        <h4>${req.requester_name} ${req.is_urgent==1?'<span class="badge badge-urgent">URGENT</span>':''}</h4>
                                         <p class="timestamp">Requested: ${req.created_at}</p>
                                     </div>
                                 </div>
                                 <div class="list-item-right">
                                     <span class="units-pill">${req.units} units</span>
                                     <span class="badge ${badgeClass}">${req.status}</span>
-                                    ${req.status === 'completed' ? `<button class="btn btn-success btn-sm" onclick="markReceived(${req.id})">✓ Mark Received</button>` : ''}
+                                    ${req.status==='completed'?`<button class="btn btn-success btn-sm" onclick="markReceived(${req.id})">✓ Received</button>`:''}
                                 </div>
                             </div>`;
                     });
-                    document.getElementById('hospital-requests').innerHTML = html || '<p style="color: var(--text-muted); text-align: center; padding: 40px 0;">No requests submitted yet.</p>';
+                    document.getElementById('hospital-requests').innerHTML = html || '<p style="color:var(--text-muted);text-align:center;padding:40px 0;">No requests yet.</p>';
                 });
         }
 
         function markReceived(id) {
             fetch('update_request_status.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: `id=${id}&status=received`
             }).then(() => loadHospitalRequests());
         }
@@ -132,5 +125,4 @@
         setInterval(loadHospitalRequests, 3000);
     </script>
 </body>
-
 </html>

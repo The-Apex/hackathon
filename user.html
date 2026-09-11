@@ -3,83 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard | Blood Bank System</title>
+    <title>User Portal — BloodSync</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container animate-in">
-        <div class="dashboard-header">
-            <h1>👤 User Dashboard</h1>
-            <a href="index.html" class="back-link">← Back to Home</a>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo">🩸</div>
+            BloodSync
+        </a>
+        <div class="navbar-actions">
+            <a href="index.html" class="nav-btn nav-btn-ghost">← Home</a>
         </div>
-        
-        <div class="dashboard-grid">
+    </nav>
+
+    <div class="page-wrapper animate-in">
+        <div class="page-header">
+            <h1>👤 User Portal</h1>
+            <p>Donate blood to save lives or submit a request for blood you need.</p>
+        </div>
+
+        <div class="grid-2">
             <!-- DONATE BLOOD -->
-            <div class="panel delay-1">
-                <h2>Donate Blood</h2>
-                <form method="POST" action="donate.php">
-                    <input type="hidden" name="redirect" value="user.html">
-                    <div class="form-group">
-                        <label>Your Name</label>
-                        <input type="text" name="name" placeholder="Enter your full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Blood Type</label>
-                        <select name="blood_type" required>
-                            <option value="">Select Blood Type</option>
-                            <option value="O+">O+</option>
-                            <option value="A+">A+</option>
-                            <option value="B+">B+</option>
-                            <option value="AB+">AB+</option>
-                            <option value="O-">O-</option>
-                            <option value="A-">A-</option>
-                            <option value="B-">B-</option>
-                            <option value="AB-">AB-</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Units to Donate</label>
-                        <input type="number" name="units" placeholder="Number of units" min="1" required>
-                    </div>
-                    <button type="submit">✅ Submit Donation</button>
-                </form>
+            <div class="card delay-1">
+                <div class="card-header">
+                    <h2><span class="card-header-icon">💉</span> Donate Blood</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="donate.php">
+                        <input type="hidden" name="redirect" value="user.html">
+                        <div class="form-group">
+                            <label class="form-label">Your Name</label>
+                            <input type="text" name="name" class="form-input" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Blood Type</label>
+                            <select name="blood_type" class="form-select" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="O+">O+</option><option value="A+">A+</option>
+                                <option value="B+">B+</option><option value="AB+">AB+</option>
+                                <option value="O-">O-</option><option value="A-">A-</option>
+                                <option value="B-">B-</option><option value="AB-">AB-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Units to Donate</label>
+                            <input type="number" name="units" class="form-input" placeholder="Number of units" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" name="phone" class="form-input" placeholder="e.g. +919876543210" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">✅ Submit Donation</button>
+                    </form>
+                </div>
             </div>
 
             <!-- REQUEST BLOOD -->
-            <div class="panel delay-2">
-                <h2>Request Blood</h2>
-                <form method="POST" action="request.php">
-                    <input type="hidden" name="requester_type" value="user">
-                    <div class="form-group">
-                        <label>Your Name</label>
-                        <input type="text" name="requester_name" placeholder="Enter your full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Blood Type Needed</label>
-                        <select name="blood_type" required>
-                            <option value="">Select Blood Type</option>
-                            <option value="O+">O+</option>
-                            <option value="A+">A+</option>
-                            <option value="B+">B+</option>
-                            <option value="AB+">AB+</option>
-                            <option value="O-">O-</option>
-                            <option value="A-">A-</option>
-                            <option value="B-">B-</option>
-                            <option value="AB-">AB-</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Units Needed</label>
-                        <input type="number" name="units" placeholder="Number of units" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <div class="checkbox-group">
-                            <input type="checkbox" name="is_urgent" id="is_urgent_user" value="1">
-                            <label for="is_urgent_user">EMERGENCY / URGENT</label>
+            <div class="card delay-2">
+                <div class="card-header">
+                    <h2><span class="card-header-icon">📋</span> Request Blood</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="request.php">
+                        <input type="hidden" name="requester_type" value="user">
+                        <div class="form-group">
+                            <label class="form-label">Your Name</label>
+                            <input type="text" name="requester_name" class="form-input" placeholder="Enter your full name" required>
                         </div>
-                    </div>
-                    <button type="submit" class="btn-secondary">📋 Submit Request</button>
-                </form>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" name="phone" class="form-input" placeholder="e.g. +919876543210" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Blood Type Needed</label>
+                            <select name="blood_type" class="form-select" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="O+">O+</option><option value="A+">A+</option>
+                                <option value="B+">B+</option><option value="AB+">AB+</option>
+                                <option value="O-">O-</option><option value="A-">A-</option>
+                                <option value="B-">B-</option><option value="AB-">AB-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Units Needed</label>
+                            <input type="number" name="units" class="form-input" placeholder="Number of units" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="urgent-toggle">
+                                <input type="checkbox" name="is_urgent" value="1">
+                                <span>⚠ Emergency / Urgent Request</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-outline">📋 Submit Request</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,11 @@
+# Environment and secret files
+.env
+.env.local
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Logs and runtime data
+*.log
+scratch/

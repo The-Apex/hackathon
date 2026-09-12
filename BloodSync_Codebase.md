@@ -1,6 +1,34 @@
-﻿# BloodSync Codebase
+# BloodSync Codebase
+
+## Overview
+BloodSync is a comprehensive Blood Bank Management System designed to connect blood donors, hospitals, and blood banks. It provides dedicated portals for users to donate or request blood, hospitals to manage blood supply requests, and blood banks to oversee inventory and fulfill incoming requests.
+
+## Key Features
+- **User Portal**: Allows individuals to register blood donations or request blood for emergencies.
+- **Hospital Portal**: Enables hospitals to request blood units for patients and track the status of their requests.
+- **Blood Bank Portal**: A centralized dashboard for blood bank administrators to monitor inventory, track recent donations, and approve or manage incoming requests.
+- **Real-time Inventory Tracking**: Displays critical stock alerts and current blood availability.
+- **Automated Request Management**: Deducts units from inventory automatically upon request approval.
+
+## Technologies Used
+- **Frontend**: HTML5, CSS3 (Custom styling with Inter font), Vanilla JavaScript (Fetch API)
+- **Backend**: PHP (Procedural with MySQLi)
+- **Database**: MySQL
+
+## Setup Instructions
+1. Install a local web server environment (e.g., XAMPP, WAMP, or MAMP).
+2. Start the **Apache** and **MySQL** modules.
+3. Place the `BloodSync` project folder inside the server's root directory (e.g., `htdocs` for XAMPP).
+4. Navigate to `http://localhost/<project_folder_name>/init.php` in your web browser to initialize the database automatically. This script will create the `blood_bank` database, required tables (`donations`, `requests`, `inventory`), and seed the initial inventory.
+5. Open `http://localhost/<project_folder_name>/index.html` to access the main application.
+
+## File Structure & Source Code
 
 ## index.html
+**Purpose**: Serves as the landing page for the application.
+**Features**: Provides navigation to three different portals (User, Hospital, Blood Bank) via clickable cards. Includes introductory branding and animations.
+**Functions**: No Javascript logic, pure static HTML structure linking to respective pages.
+
 ``html
 <!DOCTYPE html>
 <html lang="en">
@@ -39,6 +67,10 @@
 ``
 
 ## style.css
+**Purpose**: The central stylesheet providing a unified UI/UX.
+**Features**: Defines CSS variables for themes, colors, and shadows. Implements a responsive grid, flexbox layouts, hover effects, CSS animations, and custom scrollbars.
+**Functions**: Handles styling for panels, badges, tables, and buttons across all HTML files.
+
 ``css
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -445,6 +477,10 @@ button:active {
 ``
 
 ## user.html
+**Purpose**: Dashboard for individual users to interact with the blood bank.
+**Features**: Two main forms for donating blood and requesting blood. Includes options to specify blood type, units, and mark a request as urgent.
+**Functions**: Submits forms via POST to `donate.php` and `request.php`.
+
 ``html
 <!DOCTYPE html>
 <html lang="en">
@@ -537,6 +573,13 @@ button:active {
 ``
 
 ## bank.html
+**Purpose**: Administrative dashboard for managing blood bank operations.
+**Features**: Displays total statistics (blood available, total requests, donations). Shows current inventory, recent donations, and incoming requests with search and filter capabilities.
+**Functions**:
+- `loadData()`: Fetches stats, inventory, donations, and requests using fetch API and updates the DOM.
+- `filterRequests()`: Filters requests based on text search and blood type dropdown.
+- `markCompleted()`: Confirms and approves blood requests by calling `update_request_status.php`.
+
 ``html
 <!DOCTYPE html>
 <html lang="en">
@@ -738,6 +781,12 @@ button:active {
 ``
 
 ## hospital.html
+**Purpose**: Dashboard for hospitals to request blood for patients and track requests.
+**Features**: Form to submit hospital blood requests, list of their request statuses, and the ability to mark approved requests as 'received'.
+**Functions**:
+- `loadHospitalRequests()`: Fetches hospital-specific requests from the database.
+- `markReceived()`: Updates the status of an approved request to received via `update_request_status.php`.
+
 ``html
 <!DOCTYPE html>
 <html lang="en">
@@ -858,6 +907,10 @@ button:active {
 ``
 
 ## init.php
+**Purpose**: Database initialization and setup script.
+**Features**: Drops existing tables to avoid conflicts, creates schema for `donations`, `requests`, and `inventory`, and seeds initial inventory data.
+**Functions**: Connects to MySQL, executes DDL queries (`CREATE TABLE`), and performs initial data insertion (`INSERT INTO`).
+
 ``php
 <?php
 $db = new mysqli("localhost", "root", "", "blood_bank");
@@ -914,6 +967,10 @@ echo "âœ… Database initialized with new Hackathon schema!";
 ``
 
 ## donate.php
+**Purpose**: Backend handler for blood donation submissions.
+**Features**: Validates and sanitizes input, creates a new record in `donations` table, and adds the donated units to the `inventory` table.
+**Functions**: Performs SQL `INSERT` and `UPDATE` queries, then renders a success message with a redirect button to the user dashboard.
+
 ``php
 <?php
 $db = new mysqli("localhost", "root", "", "blood_bank");
@@ -941,6 +998,10 @@ echo "</div></body></html>";
 ``
 
 ## request.php
+**Purpose**: Backend handler for submitting blood requests.
+**Features**: Handles both user and hospital requests, sanitizes input, and saves the request details (including urgency flag) to the `requests` table.
+**Functions**: Performs SQL `INSERT` into the `requests` table and renders a success message based on the requester type.
+
 ``php
 <?php
 $db = new mysqli("localhost", "root", "", "blood_bank");
@@ -970,6 +1031,10 @@ echo "</div></body></html>";
 ``
 
 ## get_inventory.php
+**Purpose**: API endpoint to fetch current blood inventory.
+**Features**: Queries the `inventory` table and returns the units available for each blood type.
+**Functions**: Executes a `SELECT` query and formats the result as a JSON object.
+
 ``php
 <?php
 header('Content-Type: application/json');
@@ -986,6 +1051,10 @@ echo json_encode($inventory);
 ``
 
 ## get_requests.php
+**Purpose**: API endpoint to fetch list of blood requests.
+**Features**: Supports filtering by `requester_type` (e.g., hospital). Sorts the returned data with a priority logic: urgent requests first, pending requests next, followed by completed/received requests, and lastly by creation date.
+**Functions**: Executes a complex `SELECT` query with `ORDER BY CASE` logic, returning the result as a JSON array.
+
 ``php
 <?php
 header('Content-Type: application/json');
@@ -1016,6 +1085,10 @@ echo json_encode($requests);
 ``
 
 ## get_stats.php
+**Purpose**: API endpoint to fetch dashboard statistics.
+**Features**: Computes aggregate metrics such as total blood units available, total requests made, and total donations registered.
+**Functions**: Executes multiple `SELECT` queries with `SUM()` and `COUNT()` aggregate functions and returns a JSON object.
+
 ``php
 <?php
 header('Content-Type: application/json');
@@ -1041,6 +1114,10 @@ echo json_encode($stats);
 ``
 
 ## get_recent_donations.php
+**Purpose**: API endpoint to fetch the latest donations.
+**Features**: Retrieves the most recent 5 donations for display in the blood bank portal.
+**Functions**: Executes a `SELECT` query ordered by `created_at DESC` with a `LIMIT 5`, returning a JSON array.
+
 ``php
 <?php
 header('Content-Type: application/json');
@@ -1057,6 +1134,10 @@ echo json_encode($donations);
 ``
 
 ## update_request_status.php
+**Purpose**: API endpoint to update the status of a blood request.
+**Features**: Modifies request status (e.g., pending -> completed -> received). If a request is being approved (completed), it first verifies if enough inventory exists, deducts the required units, and then updates the request status. Includes inventory validation to prevent negative stock.
+**Functions**: Validates inventory via a `SELECT` query, conditionally executes an `UPDATE` on the `inventory` table, and finally an `UPDATE` on the `requests` table.
+
 ``php
 <?php
 $db = new mysqli("localhost", "root", "", "blood_bank");

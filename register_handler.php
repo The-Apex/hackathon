@@ -1,14 +1,14 @@
 <?php
 session_start();
-$db = new mysqli("localhost", "root", "", "blood_bank");
+require_once 'db.php';
 
-$name = $db->real_escape_string(trim($_POST['name']));
-$email = $db->real_escape_string(trim($_POST['email']));
-$phone = $db->real_escape_string(trim($_POST['phone']));
-$password = $_POST['password'];
-$role = $db->real_escape_string($_POST['role']);
-$city = isset($_POST['city']) ? $db->real_escape_string(trim($_POST['city'])) : '';
-$address = isset($_POST['address']) ? $db->real_escape_string(trim($_POST['address'])) : '';
+$name = trim($_POST['name'] ?? '');
+$email = trim($_POST['email'] ?? '');
+$phone = trim($_POST['phone'] ?? '');
+$password = $_POST['password'] ?? '';
+$role = trim($_POST['role'] ?? '');
+$city = trim($_POST['city'] ?? '');
+$address = trim($_POST['address'] ?? '');
 
 // Validate
 if (strlen($password) < 6) {
@@ -16,8 +16,11 @@ if (strlen($password) < 6) {
     exit;
 }
 
-// Check if email already exists for this role
-$check = $db->query("SELECT id FROM users WHERE email = '$email' AND role = '$role'");
+// Check if email already exists
+$stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$check = $stmt->get_result();
 if ($check->num_rows > 0) {
     header("Location: register.html?role=$role&error=" . urlencode("An account with this email already exists."));
     exit;
@@ -25,7 +28,9 @@ if ($check->num_rows > 0) {
 
 // Hash password and insert
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-$db->query("INSERT INTO users (name, email, password, phone, role, city, address) VALUES ('$name', '$email', '$hashedPassword', '$phone', '$role', '$city', '$address')");
+$insStmt = $db->prepare("INSERT INTO users (name, email, password, phone, role, city, address) VALUES (?, ?, ?, ?, ?, ?, ?)");
+$insStmt->bind_param("sssssss", $name, $email, $hashedPassword, $phone, $role, $city, $address);
+$insStmt->execute();
 
 $userId = $db->insert_id;
 

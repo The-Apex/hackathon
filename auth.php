@@ -1,13 +1,16 @@
 <?php
 session_start();
-$db = new mysqli("localhost", "root", "", "blood_bank");
+require_once 'db.php';
 
-$email = $db->real_escape_string(trim($_POST['email']));
-$password = $_POST['password'];
-$role = $db->real_escape_string($_POST['role']);
+$email = trim($_POST['email'] ?? '');
+$password = $_POST['password'] ?? '';
+$role = trim($_POST['role'] ?? '');
 
-// Find user
-$result = $db->query("SELECT * FROM users WHERE email = '$email' AND role = '$role'");
+// Find user securely
+$stmt = $db->prepare("SELECT * FROM users WHERE email = ? AND role = ?");
+$stmt->bind_param("ss", $email, $role);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
     header("Location: login.html?role=$role&error=" . urlencode("No account found with this email and role."));

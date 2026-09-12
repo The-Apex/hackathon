@@ -1,31 +1,41 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header('Content-Type: application/json');
-$db = new mysqli("localhost", "root", "", "blood_bank");
+require_once 'db.php';
 
+$userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
 $scope = isset($_GET['scope']) ? $_GET['scope'] : '';
 $typeFilter = isset($_GET['type']) ? $db->real_escape_string($_GET['type']) : '';
 
 $where = "1=1";
 
 // If scope=mine, show only current user's requests
-if ($scope === 'mine' && isset($_SESSION['user_id'])) {
-    $uid = (int)$_SESSION['user_id'];
-    $where .= " AND user_id = $uid";
+if ($scope === 'mine' && $userId > 0) {
+    $where .= " AND r.user_id = $userId";
+} else {
+    // Show requests destined for this center
+    $where .= " AND r.center_id = $userId";
 }
 
 // If type=hospital, filter by requester_type
 if ($typeFilter === 'hospital') {
-    $where .= " AND requester_type = 'hospital'";
+    $where .= " AND r.requester_type = 'hospital'";
 }
 
-$query = "SELECT id, requester_name, requester_type, phone, blood_type, units, status, is_urgent, 
-          DATE_FORMAT(created_at, '%b %d %H:%i') as created_at 
-          FROM requests 
+$orderBy = ($scope === 'mine')
+    ? "r.created_at DESC"
+    : "r.is_urgent DESC, CASE WHEN r.status = 'pending' THEN 1 WHEN r.status = 'completed' THEN 2 ELSE 3 END, r.created_at DESC";
+
+$query = "SELECT r.id, r.user_id, r.center_id, r.requester_name, r.requester_type, r.phone, r.blood_type, r.units, r.status, r.is_urgent, 
+          r.latitude, r.longitude, r.location_address,
+          c.name as center_name, c.phone as center_phone, c.address as center_address, c.city as center_city,
+          DATE_FORMAT(r.created_at, '%b %d %H:%i') as created_at 
+          FROM requests r
+          LEFT JOIN users c ON r.center_id = c.id
           WHERE $where
-          ORDER BY is_urgent DESC, 
-          CASE WHEN status = 'pending' THEN 1 WHEN status = 'completed' THEN 2 ELSE 3 END, 
-          created_at DESC";
+          ORDER BY $orderBy";
 
 $result = $db->query($query);
 $requests = [];
